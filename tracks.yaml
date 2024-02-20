@@ -102,5 +102,4 @@ tracks:
     ros_distro: rolling
     vcs_type: git
     vcs_uri: https://github.com/MRPT/mvsim.git
-    version: 0.8.3
-    version_saved: :{auto}
+    version: :{auto}
