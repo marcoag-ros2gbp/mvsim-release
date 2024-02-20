@@ -1,0 +1,120 @@
+<mvsim_world version="1.0">
+	<!-- General simulation options -->
+	<simul_timestep>5e-3</simul_timestep> <!-- Simulation fixed-time interval for numerical integration [seconds] or 0 to autodetermine -->
+	
+	<!-- GUI options -->
+	<gui>
+		<ortho>false</ortho>
+		<show_forces>false</show_forces>  <force_scale>0.01</force_scale>
+		<cam_distance>5</cam_distance>
+		<cam_azimuth>150</cam_azimuth>
+		<cam_elevation>15</cam_elevation>
+		<fov_deg>80</fov_deg>
+		<!-- <follow_vehicle>r1</follow_vehicle> -->
+	</gui>
+
+	<!-- Light parameters -->
+	<lights>
+		<enable_shadows>true</enable_shadows>
+		<light_azimuth_deg>-25.0</light_azimuth_deg>
+		<light_elevation_deg>10.0</light_elevation_deg>
+	</lights>
+
+	
+	<!-- ========================
+		   Scenario definition
+	     ======================== -->
+	<element class='elevation_map'>
+		<!-- File can be an image or a .txt matrix -->
+		<resolution>0.5</resolution>
+		<elevation_image>elevation_mesh1.png</elevation_image>
+		<elevation_image_min_z>-1.0</elevation_image_min_z>
+		<elevation_image_max_z>1.0</elevation_image_max_z>
+		
+		<texture_image>https://mrpt.github.io/mvsim-models/textures-cgbookcase/Pebbles02_512_BaseColor.png</texture_image>
+		<texture_extension_x>2.0</texture_extension_x>
+		<texture_extension_y>2.0</texture_extension_y>
+		
+		<mesh_color>#a0e0a0</mesh_color> <!-- Used only if mesh_image is not provided -->
+	</element>
+
+	<!-- A SkyBox decoration -->
+	<element class='skybox'>
+		<!-- Provide the URI printf-like "pattern" to the six texture files, 
+		     such that replacing "%s" with the following strings gives the path
+		     to the files: "Up", "Right", "Left", "Front", "Down", "Back".
+		 -->
+		<textures>https://mrpt.github.io/mvsim-models/skyboxes/SunSet.zip/SunSet/SunSet%s.jpg</textures>
+	</element>
+	
+	
+	<!-- =============================
+		   Vehicle classes definition
+	     ============================= -->
+	<include file="../definitions/jackal.vehicle.xml"
+		default_sensors="false"
+	/>
+
+	<!-- ========================
+		   Vehicle(s) definition
+	     ======================== -->
+	<vehicle name="r1" class="jackal">
+		<init_pose>4 -8 0</init_pose>  <!-- In global coords: x,y, yaw(deg) -->
+
+		<!-- Sensors -->
+
+		<include file="../definitions/velodyne-vlp16.sensor.xml"
+		  sensor_x="0.15" sensor_y="0" sensor_z="0.38" sensor_yaw="0"
+		  sensor_std_noise="0.005"
+		  sensor_publish="false"
+		  sensor_name="lidar1"
+		  sensor_rpm="600"
+		  horz_resolution_factor="2.0"
+		  vert_resolution_factor="2.0"
+		/>
+		
+		<include file="../definitions/rgbd_camera.sensor.xml" 
+		  sensor_x="0.22" sensor_z="0.29"
+		  sensor_period_sec="0.10"
+		  show_3d_pointcloud="false"
+		/>
+
+	</vehicle>
+	
+	
+
+	<!-- ======================================
+	      Obstacle blocks classes definition
+	     ====================================== -->
+	<block:class name="rock_01">
+		<static>true</static> <!-- Does not move -->
+		<shape_from_visual/> <!-- automatic shape,zmin,zmax from 3D mesh-->
+		<visual>
+			<model_uri>https://mrpt.github.io/mvsim-models/rock01.zip/rock01/FallingRock01.dae</model_uri>
+		</visual>
+	</block:class>
+
+	<block:class name="rock_02">
+		<static>true</static> <!-- Does not move -->
+		<shape_from_visual/> <!-- automatic shape,zmin,zmax from 3D mesh-->
+		<visual>
+			<model_uri>https://mrpt.github.io/mvsim-models/rock02.zip/rock02/FallingRock02.dae</model_uri>
+		</visual>
+	</block:class>
+
+
+	<!-- ========================
+		Obstacle blocks
+	     ======================== -->
+	<variable name="ROCKS_SPREAD_X" value="35.0"></variable>
+	<variable name="ROCKS_SPREAD_Y" value="35.0"></variable>
+	<variable name="ROCKS_SPREAD_Z" value="0.5"></variable>
+	     
+	<for var="i" from="1" to="12">
+		<block class="rock_01">
+			<!-- In global coords: x,y,z, yaw(deg),pitch(deg),roll(deg) -->
+			<init_pose3d>$f{(-0.5+rand())*ROCKS_SPREAD_X} $f{(-0.5+rand())*ROCKS_SPREAD_Y} $f{(-0.5+rand())*ROCKS_SPREAD_Z} $f{-180+rand()*360} 0 0</init_pose3d>
+		</block>
+	</for>
+
+</mvsim_world>

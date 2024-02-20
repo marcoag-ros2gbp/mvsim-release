@@ -1,0 +1,107 @@
+<mvsim_world version="1.0">
+	<!-- General simulation options -->
+	<simul_timestep>0</simul_timestep> <!-- Simulation fixed-time interval for numerical integration [seconds] or 0 to autodetermine -->
+
+	<!-- Optional: save all sensor data into an MRPT .rawlog dataset file: -->
+	<!-- <save_to_rawlog>jackal_dataset.rawlog</save_to_rawlog> -->
+	<!-- If save_to_rawlog is enabled, this defines the rate in Hz to generate odometry observations -->
+	<!-- <rawlog_odometry_rate>20.0</rawlog_odometry_rate> -->
+	<!-- <save_ground_truth_trajectory>gt.txt</save_ground_truth_trajectory> -->
+
+	<!-- GUI options -->
+	<gui>
+		<ortho>false</ortho>
+		<show_forces>true</show_forces>  <force_scale>0.01</force_scale>
+		<cam_distance>35</cam_distance>
+		<fov_deg>60</fov_deg>
+		<refresh_fps>20</refresh_fps>
+		<!-- <follow_vehicle>r1</follow_vehicle> -->
+	</gui>
+
+	<variable name="BLOCKS_X_MIN" value="5.0" />
+	<variable name="BLOCKS_X_MAX" value="10.0" />
+	
+	<variable name="BLOCKS_Y_MIN" value="-5.0" />	
+	<variable name="BLOCKS_Y_MAX" value="8.0" />
+
+	<variable name="NUM_BLOCKS" value="30" />
+
+	<!-- ========================
+		   Scenario definition
+	     ======================== -->
+	<element class="occupancy_grid">
+		<file>demo_world1.png</file>
+		<resolution>0.1</resolution>
+		<centerpixel_x>100</centerpixel_x>
+		<centerpixel_y>100</centerpixel_y>
+	</element>
+
+	<!-- =============================
+		   Vehicle classes definition
+	     ============================= -->
+	<include file="../definitions/jackal.vehicle.xml"
+		default_sensors="false"
+	/>
+
+	<!-- ========================
+		   Vehicle(s) definition
+	     ======================== -->
+	<vehicle name="r1" class="jackal">
+		<init_pose>0 0 0</init_pose>  <!-- In global coords: x,y, yaw(deg) -->
+		<init_vel>0 0 0</init_vel>  <!-- In local coords: vx,vy, omega(deg/s) -->
+
+		<!-- Sensors -->
+		<include file="../definitions/lidar2d.sensor.xml" 
+		  sensor_x="0.15" sensor_z="0.33" sensor_yaw="0" sensor_name="laser1" 
+		/>
+		<include file="../definitions/lidar2d.sensor.xml"
+		  sensor_x="-0.17" sensor_z="0.25" sensor_yaw="180" sensor_name="laser2" 
+		/>
+
+		<include file="../definitions/rgbd_camera.sensor.xml" 
+		  sensor_x="0.22" sensor_z="0.29"
+		  sensor_period_sec="0.10"
+		  show_3d_pointcloud="true"
+		/>
+	</vehicle>
+
+	<!-- ======================================
+	      Obstacle blocks classes definition
+	     ====================================== -->
+	<block:class name="square_obstacle">
+		<mass>2</mass>
+		<color>#0080ff</color>
+		<zmax>0.5</zmax>
+		<ground_friction>0.3</ground_friction>
+		<shape>
+			<pt>-0.4 -0.4</pt>
+			<pt>-0.5  0.3</pt>
+			<pt> 0.3  0.3</pt>
+			<pt> 0.2 -0.25</pt>
+		</shape>
+	</block:class>
+
+	<block class="square_obstacle"> <init_pose>$f{BLOCKS_X_MIN + 2} $f{BLOCKS_Y_MIN+1}  45</init_pose> </block>
+	<block class="square_obstacle"> <init_pose>$f{BLOCKS_X_MIN + 8} $f{BLOCKS_Y_MIN+5} -90</init_pose> </block>
+	<block class="square_obstacle"> <init_pose>$f{BLOCKS_X_MIN + 4} $f{BLOCKS_Y_MIN+8} -45</init_pose> </block>
+
+	<!-- this random functions require mrpt >=2.5.8 -->
+	<!--
+	<for var="i" from="0" to="$f{NUM_BLOCKS}">
+		<block class="square_obstacle"> <init_pose>$f{unifrnd(BLOCKS_X_MIN,BLOCKS_X_MAX)} $f{unifrnd(BLOCKS_Y_MIN,BLOCKS_Y_MAX)} $f{unifrnd(-180,180)}</init_pose> </block>
+	</for>
+	-->
+
+	<block class="square_obstacle">
+		<init_pose>5 1 0</init_pose>
+
+		<animation type="keyframes">
+			<time_pose>0.0  -1  0  30</time_pose>
+			<time_pose>2.0  -1 -1 -10</time_pose>
+			<time_pose>4.0   1 -1 -50</time_pose>
+			<time_pose>4.5   1  1  40</time_pose>
+			<time_pose>5.0  -1  0  30</time_pose>
+		</animation>
+	</block>
+
+</mvsim_world>

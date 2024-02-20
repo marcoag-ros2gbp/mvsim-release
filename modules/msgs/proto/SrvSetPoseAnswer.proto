@@ -1,0 +1,17 @@
+syntax = "proto2";
+
+package mvsim_msgs;
+
+import "Pose.proto";
+
+message SrvSetPoseAnswer {
+  /* Should be checked */
+  required bool success = 1;
+
+  optional string errorMessage = 2;
+
+  required bool objectIsInCollision = 4;
+  
+  /* Will be filled in if the request was a relative incremental pose request */
+  optional Pose objectGlobalPose = 5;
+}

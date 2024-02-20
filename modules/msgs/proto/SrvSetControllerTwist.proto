@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+package mvsim_msgs;
+
+import "Twist.proto";
+
+message SrvSetControllerTwist {
+  required string objectId = 1;
+  
+  required Twist twistSetPoint = 2;
+}

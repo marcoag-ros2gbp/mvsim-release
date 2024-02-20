@@ -1,0 +1,18 @@
+syntax = "proto2";
+
+package mvsim_msgs;
+
+import "Pose.proto";
+import "Twist.proto";
+
+message SrvGetPoseAnswer {
+  /* Should be checked */
+  required bool success = 1;
+  optional string errorMessage = 2;
+
+  // Absolute coordinates pose & twist:
+  optional Pose pose = 3;
+  optional Twist twist = 5;
+
+  required bool objectIsInCollision = 4;
+}

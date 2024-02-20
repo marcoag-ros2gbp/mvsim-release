@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+package mvsim_msgs;
+
+import "Pose.proto";
+import "Twist.proto";
+
+message SrvSetPoseTwist {
+  required string objectId = 1;
+
+  required Pose pose = 2;
+  required Twist twist = 3;
+}

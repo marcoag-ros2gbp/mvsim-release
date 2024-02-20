@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+<name>mvsim</name>
+  <description>A lightweight multivehicle simulation framework.</description>
+
+  <!-- All version numbers in CMake scripts are taken from this line: -->
+  <version>0.8.3</version>
+
+  <maintainer email="jlblanco@ual.es">Jose-Luis Blanco-Claraco</maintainer>
+  <license>BSD</license>
+  <url type="website">https://wiki.ros.org/mvsim</url>
+
+  <!-- COMMON DEPS -->
+  <build_depend>ros_environment</build_depend>
+
+  <!-- BUILD TOOLS -->
+  <buildtool_depend>cmake</buildtool_depend>
+  <buildtool_depend condition="$ROS_VERSION == 1">catkin</buildtool_depend>
+  <buildtool_depend condition="$ROS_VERSION == 2">ament_cmake_gtest</buildtool_depend>
+  <buildtool_depend condition="$ROS_VERSION == 2">ament_cmake_gmock</buildtool_depend>
+  <buildtool_depend condition="$ROS_VERSION == 2">ament_cmake</buildtool_depend>
+
+  <!-- COMMON DEPS -->
+  <depend>mrpt2</depend>
+  <depend>sensor_msgs</depend>
+  <depend>visualization_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>tf2</depend>
+  <depend>tf2_geometry_msgs</depend>
+  <depend>libzmq3-dev</depend>
+  <depend>boost</depend>
+  <depend>pybind11-dev</depend>
+  <depend>protobuf-dev</depend>
+  <depend>python3-pip</depend>
+  <depend>python3-protobuf</depend>
+  <depend>python3-venv</depend>
+  <depend>wget</depend>
+  <depend>unzip</depend>
+
+  <!-- ROS1 -->
+  <depend           condition="$ROS_VERSION == 1">roscpp</depend>
+  <depend           condition="$ROS_VERSION == 1">dynamic_reconfigure</depend>
+  <depend           condition="$ROS_VERSION == 1">rviz_plugin_tutorials</depend>
+  <test_depend      condition="$ROS_VERSION == 1">gtest</test_depend>
+  
+  <!-- ROS2 -->
+  <test_depend      condition="$ROS_VERSION == 2">ament_lint_auto</test_depend>
+  <test_depend      condition="$ROS_VERSION == 2">ament_lint_common</test_depend>
+  <build_depend     condition="$ROS_VERSION == 2">ament_cmake_xmllint</build_depend>
+  <!-- to recognize launch files -->
+  <exec_depend      condition="$ROS_VERSION == 2">ros2launch</exec_depend>
+
+  <export>
+    <build_type condition="$ROS_VERSION == 1">catkin</build_type>
+    <build_type condition="$ROS_VERSION == 2">ament_cmake</build_type>
+  </export>
+
+</package>
