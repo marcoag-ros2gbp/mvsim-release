@@ -1,58 +1,67 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
-
-export DEB_BUILD_MAINT_OPTIONS=hardening=+all
-include /usr/share/dpkg/architecture.mk
-
-BUILDDIR = obj-$(DEB_HOST_MULTIARCH)
+# Sample debian/rules that uses debhelper.
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
 
 # Uncomment this to turn on verbose mode.
 export DH_VERBOSE=1
+# TODO: remove the LDFLAGS override.  It's here to avoid esoteric problems
+# of this sort:
+#  https://code.ros.org/trac/ros/ticket/2977
+#  https://code.ros.org/trac/ros/ticket/3842
+export LDFLAGS=
+export PKG_CONFIG_PATH=/opt/ros/rolling/lib/pkgconfig
+# Explicitly enable -DNDEBUG, see:
+# 	https://github.com/ros-infrastructure/bloom/issues/327
+export DEB_CXXFLAGS_MAINT_APPEND=-DNDEBUG
+ifneq ($(filter nocheck,$(DEB_BUILD_OPTIONS)),)
+	BUILD_TESTING_ARG=-DBUILD_TESTING=OFF
+endif
 
-CMAKE_FLAGS = \
-	-DCMAKE_BUILD_TYPE=Release	\
-	-DCMAKE_CXX_FLAGS_RELEASE="$(CXXFLAGS)" \
-	-DCMAKE_C_FLAGS_RELEASE="$(CFLAGS)" \
-	-DCMAKE_EXE_LINKER_FLAGS_RELEASE="$(LDFLAGS)" \
-	-DCMAKE_INSTALL_LIBDIR="lib/$(DEB_HOST_MULTIARCH)" \
-	-DCMAKE_INSTALL_PREFIX=/usr \
-	-DCMAKE_SKIP_RPATH=ON \
-	-DCMAKE_VERBOSE_MAKEFILE=ON \
-	-DPYTHON_INSTALL_DIRECTORY="../debian/tmp/usr/" \
-	$(CMAKE_ARCH_FLAGS)
-
-# Package version of libbox2d-dev
-libbox2d_version = $(shell dpkg-query -W -f '$${Version}' libbox2d-dev)
+DEB_HOST_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 
 %:
-	dh $@ --with python3 --buildsystem=cmake
+	dh $@ -v --buildsystem=cmake --builddirectory=.obj-$(DEB_HOST_GNU_TYPE)
 
 override_dh_auto_configure:
-	dh_auto_configure -B $(BUILDDIR) \
-		-- $(CMAKE_FLAGS) \
-		-DCMAKE_SHARED_LINKER_FLAGS_RELEASE="$(LDFLAGS)" \
-		-DBUILD_SHARED_LIBS=ON
+	# In case we're installing to a non-standard location, look for a setup.sh
+	# in the install tree and source it.  It will set things like
+	# CMAKE_PREFIX_PATH, PKG_CONFIG_PATH, and PYTHONPATH.
+	if [ -f "/opt/ros/rolling/setup.sh" ]; then . "/opt/ros/rolling/setup.sh"; fi && \
+	dh_auto_configure -- \
+		-DCMAKE_INSTALL_PREFIX="/opt/ros/rolling" \
+		-DAMENT_PREFIX_PATH="/opt/ros/rolling" \
+		-DCMAKE_PREFIX_PATH="/opt/ros/rolling" \
+		$(BUILD_TESTING_ARG)
 
+override_dh_auto_build:
+	# In case we're installing to a non-standard location, look for a setup.sh
+	# in the install tree and source it.  It will set things like
+	# CMAKE_PREFIX_PATH, PKG_CONFIG_PATH, and PYTHONPATH.
+	if [ -f "/opt/ros/rolling/setup.sh" ]; then . "/opt/ros/rolling/setup.sh"; fi && \
+	dh_auto_build
+
+override_dh_auto_test:
+	# In case we're installing to a non-standard location, look for a setup.sh
+	# in the install tree and source it.  It will set things like
+	# CMAKE_PREFIX_PATH, PKG_CONFIG_PATH, and PYTHONPATH.
+	echo -- Running tests. Even if one of them fails the build is not canceled.
+	if [ -f "/opt/ros/rolling/setup.sh" ]; then . "/opt/ros/rolling/setup.sh"; fi && \
+	dh_auto_test || true
+
+override_dh_shlibdeps:
+	# In case we're installing to a non-standard location, look for a setup.sh
+	# in the install tree and source it.  It will set things like
+	# CMAKE_PREFIX_PATH, PKG_CONFIG_PATH, and PYTHONPATH.
+	if [ -f "/opt/ros/rolling/setup.sh" ]; then . "/opt/ros/rolling/setup.sh"; fi && \
+	dh_shlibdeps -l$(CURDIR)/debian/ros-rolling-mvsim//opt/ros/rolling/lib/
 
 override_dh_auto_install:
-	dh_auto_install -B $(BUILDDIR)
-
-	# Workaround not to FTBFS if built with old python version, 
-	# which do not create actual package contents:
-	mkdir -p debian/tmp/usr/lib/python3/
-	touch debian/tmp/usr/lib/python3/.mvsim_empty
-
-	echo "libbox2d_version: $(libbox2d_version)"
-
-	# If we have libbox2d < 2.4 (or none), install the custom, embedded version of it:
-	# empty line first:
-	if [ "$$(echo $(libbox2d_version) | sed 's/\([0-9]\.[0-9]\).*/\1<2.4/' | bc)" = "1" ]; then \
-		echo "WARNING: Embedding libbox2d into libmvsim-simulator-dev"; \
-		echo "" >> debian/libmvsim-simulator-dev.install; \
-		echo "usr/lib/*/libbox2d.a" >> debian/libmvsim-simulator-dev.install; \
-		echo "usr/lib/*/cmake/box2d/*" >> debian/libmvsim-simulator-dev.install; \
-		echo "usr/include/box2d/" >> debian/libmvsim-simulator-dev.install; \
-	fi
-
-override_dh_missing:
-	dh_missing --list-missing
+	# In case we're installing to a non-standard location, look for a setup.sh
+	# in the install tree and source it.  It will set things like
+	# CMAKE_PREFIX_PATH, PKG_CONFIG_PATH, and PYTHONPATH.
+	if [ -f "/opt/ros/rolling/setup.sh" ]; then . "/opt/ros/rolling/setup.sh"; fi && \
+	dh_auto_install
